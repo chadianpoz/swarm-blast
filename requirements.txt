@@ -1,0 +1,8 @@
+hydra-core
+numpy
+scipy
+scikit-learn
+networkx
+pandas
+matplotlib
+httpx
