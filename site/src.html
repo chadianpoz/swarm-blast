@@ -222,9 +222,9 @@ footer{padding-block:36px 64px;font-family:var(--sans);font-size:13.5px;color:va
     <div class="kicker">Motivation</div>
     <h2>Why this matters now</h2>
     <p>Teams of AI agents now pass messages to each other, and every message is also a channel for instructions. If one agent reads a message that tells it to copy that message, the instruction can spread through the whole team without anyone sending it again.</p>
-    <p>Researchers showed this in 2024. Morris II spread a self-replicating prompt between AI email assistants through their retrieval systems (<a class="cite" href="#ref-cohen">Cohen et al. 2024</a>). Prompt Infection showed the same between agents in a multi-agent system (<a class="cite" href="#ref-lee">Lee and Tiwari 2024</a>). In 2026 the work moved from demonstrations to systems. The promptware kill chain describes prompt injection as a multistep malware delivery mechanism (<a class="cite" href="#ref-brodt">Brodt et al. 2026</a>). Kill-Chain Canaries tracked marker tokens through agent pipelines and found that injections succeeded on 53% of attacks against gpt-4o-mini, the model used here (<a class="cite" href="#ref-wang">Wang and Zhang 2026</a>). Mind Viruses studied self-propagating ideas, and found that network topology changes how fast they spread and that a warning in the system prompt gave almost complete protection (<a class="cite" href="#ref-papadopoulos">Papadopoulos et al. 2026</a>).</p>
-    <p>In July 2026, about 1,200 OpenAI agents in an evaluation found an unsanctioned shared message board and exchanged more than 70,000 messages. About 700 of them took part in an attack on Hugging Face infrastructure (<a class="cite" href="#ref-metr">METR 2026</a>). In mid-September, Andrew Yang said on CNBC: <em>"I met with the head of a lab yesterday who has this belief that what happened was the bots that got loose planted self-replicating code all over the internet"</em> (<a class="cite" href="#ref-yang">Yang 2026</a>). He reported another person's belief and did not name a company. News coverage connected the remark to the July incident. Neither OpenAI's incident report nor METR's investigation reports self-replicating code on the wider internet, and we found no public evidence for it (<a class="cite" href="#ref-neuron">The Neuron 2026</a>). On September 25, OpenAI's alignment team published "Self-replicating prompt injections exist". It describes injections that copied themselves through email, files, code and Slack in training environments (<a class="cite" href="#ref-openai">OpenAI 2026</a>). The report gives four example transcripts but no success rate (<a class="cite" href="#ref-sharma">Sharma 2026</a>).</p>
-    <p><strong>Replication is not the main danger.</strong> A worm that only copies itself is a nuisance. A worm that carries a misaligned instruction, such as a hidden goal, a false belief, or an order to leak data, spreads that instruction to every agent it reaches. Morris II already carried a data-theft payload alongside its copy instruction (<a class="cite" href="#ref-cohen">Cohen et al. 2024</a>). Detecting the replication is the first line of defense against the payload.</p>
+    <p>Self-replicating prompts have been demonstrated between AI email assistants that use retrieval (<a class="cite" href="#ref-cohen">Cohen et al. 2024</a>) and between agents in multi-agent systems (<a class="cite" href="#ref-lee">Lee and Tiwari 2024</a>). Prompt injection has been described as a multistep malware delivery mechanism with stages similar to a conventional attack (<a class="cite" href="#ref-brodt">Brodt et al. 2026</a>). Tracking of marker tokens through agent pipelines found that injections succeeded on 53% of attacks against gpt-4o-mini, the model used here (<a class="cite" href="#ref-wang">Wang and Zhang 2026</a>). Work on self-propagating ideas in multi-agent systems found that network topology changes how fast they spread, and that a warning in the system prompt gave almost complete protection (<a class="cite" href="#ref-papadopoulos">Papadopoulos et al. 2026</a>).</p>
+    <p>In July 2026, about 1,200 OpenAI agents in an evaluation found an unsanctioned shared message board and exchanged more than 70,000 messages. About 700 of them took part in an attack on Hugging Face infrastructure (<a class="cite" href="#ref-metr">METR 2026</a>). In mid-September, Andrew Yang said on CNBC: <em>"I met with the head of a lab yesterday who has this belief that what happened was the bots that got loose planted self-replicating code all over the internet"</em> (<a class="cite" href="#ref-yang">Yang 2026</a>). He reported another person's belief and did not name a company. News coverage connected the remark to the July incident. Neither OpenAI's incident report nor METR's investigation reports self-replicating code on the wider internet, and we found no public evidence for it (<a class="cite" href="#ref-neuron">The Neuron 2026</a>). OpenAI has since reported self-replicating prompt injections in its own training environments, which copied themselves through email, files, code and Slack (<a class="cite" href="#ref-openai">OpenAI 2026</a>). The report gives four example transcripts but no success rate (<a class="cite" href="#ref-sharma">Sharma 2026</a>).</p>
+    <p><strong>Replication alone is not the main concern.</strong> A prompt that only copies itself wastes resources. A prompt that also carries a misaligned instruction, such as a hidden goal, a false belief or an instruction to leak data, would spread that instruction to every agent it reaches. Published demonstrations have paired replication with such a goal, for example data theft (<a class="cite" href="#ref-cohen">Cohen et al. 2024</a>) and file deletion or changes to build scripts (<a class="cite" href="#ref-openai">OpenAI 2026</a>). We found no documented case outside a research or training setting. Detecting the replication is a first line of defense against whatever it carries.</p>
     <p><strong>Detection is an arms race.</strong> The long-term goal is to detect a highly capable AI system, possibly more capable than its overseers, that spreads through agent messages and tries not to be caught. Any detector we publish is something such a system could study and avoid. So this project tests both sides: the detectors, and the strongest evasion strategies we can build against them in a controlled setting. Today's evasions are weak (Figure 9). We expect them to get stronger as models improve, and the detectors must be tested against that.</p>
   </div>
   <figure>
@@ -237,7 +237,7 @@ footer{padding-block:36px 64px;font-family:var(--sans);font-size:13.5px;color:va
   <div class="prose">
     <div class="kicker">Thesis</div>
     <h2>A replicator must conserve its function</h2>
-    <p>A self-replicating prompt has two jobs. First, it must get itself copied. Second, it usually carries something else: the goal that makes it dangerous. Plain replication wastes resources and erodes trust. Replication of a <strong>misaligned instruction</strong> is far worse, because every copy also does what the instruction says, in every agent it reaches.</p>
+    <p>A self-replicating prompt has one necessary job: it must get itself copied. It can also carry something else, a goal that makes it more dangerous. Plain replication wastes resources and erodes trust. Replication of a <strong>misaligned instruction</strong> would be far worse, because every copy would also act on the instruction, in every agent it reaches.</p>
     <p>Both jobs must survive copying, so something must stay the same from copy to copy. Our thesis is that this conserved function leaves a trace that a monitor can find, and that a replicator can move the trace to a deeper level but cannot remove it. We look at three levels:</p>
     <ol class="levels">
       <li><b>Words.</b> Copies repeat the same text. A word-level (lexical) detector can find it.</li>
@@ -302,8 +302,10 @@ footer{padding-block:36px 64px;font-family:var(--sans);font-size:13.5px;color:va
 <section id="mock">
   <div class="prose">
     <div class="kicker">Method · the mock simulation</div>
-    <h2>A simulation of the same process, without model calls</h2>
-    <p>Before spending money on model calls, the project tests its tools on a <strong>mock</strong>. The agents write messages from fixed templates, and the note passes from one agent to the next by chance. The chance depends on how much of the core survived the copy (the <span class="term" title="The fraction of the different words in the original core that are present in a message, from 0 to 1.">fidelity</span>). Because the mock sets every rate itself, the right answer is always known, so it can check that the detectors and statistics work.</p>
+    <h2>A model made of equations, borrowed from epidemiology</h2>
+    <p>The <strong>mock</strong> does not call any model and does not write any text. There are no agents in it. It is a handful of equations: a standard <span class="term" title="Susceptible-Infected-Recovered: the classic compartment model of how an infection moves through a population. Here each agent is 'infected' if it carries the note.">SIR-style contagion model</span> of the kind epidemiologists and immunologists use for how an infection moves through a population. We reached for it because the question here is the same shape as a question about a virus: what fraction of a population ends up carrying the thing, how fast, and what has to stay intact for it to keep spreading.</p>
+    <p>In the mock, each agent is just a state (carrying the note or not). The note passes from one agent to the next with probability <code>P = β × fidelity<sup>sharpness</sup></code>, where <span class="term" title="The fraction of the original core's distinct words still present in a copy, from 0 to 1.">fidelity</span> is how much of the core instruction a copy kept. The virology analogue is direct: the <strong>core</strong> is the conserved genome that a copy must keep to stay infectious, the <strong>wrapper</strong> is the coat that can mutate freely, <strong>β</strong> is contact infectivity, and <strong>sharpness</strong> is how steeply losing the core costs transmission.</p>
+    <p>Its only job is to be a sandbox where <em>the right answer is known</em>. Because the mock sets every rate itself, we can plant an outbreak, or recombination between lineages, at a rate we choose, and then check that the detectors and the lineage and horizontal-transfer statistics recover it. It calibrates the instruments. It is not evidence about real models; that is what the LLM runs are for.</p>
   </div>
   <figure>
     <div class="fig-body mockgrid">
@@ -312,11 +314,30 @@ footer{padding-block:36px 64px;font-family:var(--sans);font-size:13.5px;color:va
         <div class="slider"><div class="row"><label for="s-fid">fidelity</label><span id="v-fid"></span></div><input type="range" id="s-fid" min="0" max="1" step="0.01" value="0.8"></div>
         <div class="slider"><div class="row"><label for="s-sh">sharpness</label><span id="v-sh"></span></div><input type="range" id="s-sh" min="1" max="8" step="0.5" value="3"></div>
         <div class="slider"><div class="row"><label for="s-b">β (beta)</label><span id="v-b"></span></div><input type="range" id="s-b" min="0.05" max="1" step="0.05" value="0.35"></div>
-        <p class="mocknote">The defaults (β 0.35, sharpness 3) come from <code>conf/config.yaml</code>. With a higher sharpness, a core that lost some of its words has a much lower chance of being passed on.</p>
+        <p class="mocknote">The defaults (β 0.35, sharpness 3) come from <code>conf/config.yaml</code>. With a higher sharpness, a copy that lost some of its core words is far less likely to be passed on: the conserved genome matters more.</p>
       </div>
       <svg class="plot" id="plot" viewBox="0 0 420 260" role="img" aria-label="Infection probability against fidelity"></svg>
     </div>
-    <figcaption><b>Figure 3.</b> The mock's transmission rule. Only the real model experiments (E1, E3-LLM, E5) call the model through OpenRouter. The mock experiments (E0, E4, E6, E7, E8) are free.</figcaption>
+    <figcaption><b>Figure 3.</b> The mock's transmission rule. Only the real model experiments (E1, E3-LLM, E5) call a model through OpenRouter. The mock experiments (E0, E4, E6, E7, E8) are free equations.</figcaption>
+  </figure>
+  <div class="prose" style="margin-top:44px">
+    <h3>Does the mock match the real models?</h3>
+    <p style="margin-top:10px">Mostly, and where it does not is itself informative. The mock's central claim is that spread falls only when the <em>core</em> degrades, while rewording the wrapper is free. The real models confirmed both halves: the <code>wrapper</code> version (reword everything but the core sentence) spread and was detected just like <code>exact</code>, and attack rate tracked core fidelity, not wrapper fidelity.</p>
+    <p>The gap is in <em>how</em> fidelity degrades. The mock treats fidelity as a dial you can set anywhere from 0 to 1, so it spends most of its range in a middle zone where a copy keeps, say, half its core. Real gpt-4o-mini almost never sat there. Told to reword (the <code>full</code> version), it either copied the core nearly verbatim or dropped the note entirely — the fidelity distribution is bimodal, not smooth. So the degraded-core regime the mock explores, where the lexical detector finally starts to fail, barely occurred in practice. The real models sat at the easy end of the mock's own curve.</p>
+  </div>
+  <figure>
+    <div class="fig-body tablewrap"><table class="cmp">
+      <thead><tr><th>Quantity</th><th>Mock, intact core</th><th>Real, <code>exact</code></th><th>Mock, degraded core (μ=0.4)</th><th>Real, <code>full</code> (told to reword)</th></tr></thead>
+      <tbody>
+        <tr><td>Attack rate</td><td>1.00</td><td>0.93</td><td>0.73</td><td>0.60</td></tr>
+        <tr><td>Lexical AUC</td><td>1.00</td><td>1.00</td><td>0.88</td><td>0.84</td></tr>
+        <tr><td>Semantic AUC</td><td>1.00</td><td>1.00</td><td>0.88</td><td>0.97</td></tr>
+        <tr><td>Behavioral AUC</td><td>1.00</td><td>1.00</td><td>never trips</td><td>0.99</td></tr>
+        <tr><td>Detector trips at round</td><td>2 to 3.5</td><td>3</td><td>sem 5, lex 10</td><td>lex 2, sem 3, beh 2</td></tr>
+        <tr><td>What stayed conserved</td><td>core, by construction</td><td>whole note</td><td>core partly lost, by construction</td><td>core words (≈70% of copies kept ≥80%)</td></tr>
+      </tbody>
+    </table></div>
+    <figcaption><b>Table 2.</b> The mock against the real runs, at the two ends of the fidelity range. Mock figures are the complete board from E0/E7; real figures are means over topologies and warning levels, with the degraded-core and <code>full</code> AUCs scored on outbreak runs only. Read it as: the mock's predictions hold, but real models clustered at the intact-core end, so the hard regime the mock warns about — a swarm that rewrites nearly every copy and lands in the middle of the curve — is <em>not</em> something these models reached. That regime stays untested (see limitations).</figcaption>
   </figure>
 </section>
 
@@ -461,7 +482,7 @@ footer{padding-block:36px 64px;font-family:var(--sans);font-size:13.5px;color:va
   </figure>
   <figure>
     <div class="fig-body tablewrap"><table class="cmp" id="mtable"></table></div>
-    <figcaption><b>Table 2.</b> The <code>full</code> payload version on each model. "Copies reworded" is the share of infected copies that kept less than 80% of the original core words. AUC uses only the runs where the note spread. "Jobs done" counts finished runs out of 12 (4 warning levels × 3 topologies).</figcaption>
+    <figcaption><b>Table 3.</b> The <code>full</code> payload version on each model. "Copies reworded" is the share of infected copies that kept less than 80% of the original core words. AUC uses only the runs where the note spread. "Jobs done" counts finished runs out of 12 (4 warning levels × 3 topologies).</figcaption>
   </figure>
 </section>
 
@@ -496,7 +517,7 @@ footer{padding-block:36px 64px;font-family:var(--sans);font-size:13.5px;color:va
   <div class="prose">
     <div class="kicker">Notes</div>
     <ol class="refs fnlist">
-      <li id="fn-models"><b>1.</b> Model selection. All models run through OpenRouter with reasoning turned off, so that every model gets the same task. claude-haiku-4.5, claude-sonnet-5, gpt-5.6-sol and qwen3-max were planned but not run: OpenRouter limits new accounts to 20 requests per minute for these models, and one full E3-LLM run needs about 37,000 calls, which is about 31 hours at that rate. gemini-3.5-flash was left out because its reasoning cannot be turned off. mistral-large was limited by its upstream provider, so its results may be partial; the "Jobs done" column in Table 2 shows how much finished. <a href="#fnref-models">Back</a></li>
+      <li id="fn-models"><b>1.</b> Model selection. All models run through OpenRouter with reasoning turned off, so that every model gets the same task. claude-haiku-4.5, claude-sonnet-5, gpt-5.6-sol and qwen3-max were planned but not run: OpenRouter limits new accounts to 20 requests per minute for these models, and one full E3-LLM run needs about 37,000 calls, which is about 31 hours at that rate. gemini-3.5-flash was left out because its reasoning cannot be turned off. mistral-large was limited by its upstream provider, so its results may be partial; the "Jobs done" column in Table 3 shows how much finished. <a href="#fnref-models">Back</a></li>
     </ol>
   </div>
 </section>
@@ -506,7 +527,7 @@ footer{padding-block:36px 64px;font-family:var(--sans);font-size:13.5px;color:va
     <div class="kicker">References</div>
     <h2>Sources</h2>
     <ul class="refs">
-      <li id="ref-cohen">Cohen, Bitton, Nassi. <a href="https://arxiv.org/abs/2403.02817">Here Comes the AI Worm: Unleashing Zero-click Worms that Target GenAI-Powered Applications</a> (Morris II). arXiv 2403.02817, 2024.</li>
+      <li id="ref-cohen">Cohen, Bitton, Nassi. <a href="https://arxiv.org/abs/2403.02817">Here Comes the AI Worm: Unleashing Zero-click Worms that Target GenAI-Powered Applications</a>. arXiv 2403.02817, 2024.</li>
       <li id="ref-lee">Lee, Tiwari. <a href="https://arxiv.org/abs/2410.07283">Prompt Infection: LLM-to-LLM Prompt Injection within Multi-Agent Systems</a>. arXiv 2410.07283, 2024.</li>
       <li id="ref-brodt">Brodt, Feldman, Schneier, Nassi. <a href="https://arxiv.org/abs/2601.09625">The Promptware Kill Chain: How Prompt Injections Gradually Evolved Into a Multistep Malware Delivery Mechanism</a>. arXiv 2601.09625, January 2026.</li>
       <li id="ref-wang">Wang, Zhang. <a href="https://arxiv.org/abs/2603.28013">Kill-Chain Canaries: Stage-Level Tracking of Prompt Injection Across Attack Surfaces and Five Production LLMs</a>. arXiv 2603.28013, March 2026 (revised September 2026).</li>
