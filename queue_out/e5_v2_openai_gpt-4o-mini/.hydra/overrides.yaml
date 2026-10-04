@@ -1,0 +1,6 @@
+- experiment=e5
+- model=openai/gpt-4o-mini
+- llm.vigilance=2
+- budget_usd=25
+- llm.neg=16
+- llm.ref_runs=4
