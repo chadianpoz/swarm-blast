@@ -72,7 +72,7 @@ ttd:
   seeds: 10
   neg: 20                            # benign mock runs used to calibrate per-tick thresholds
   alpha: 0.0                         # 0 = threshold is the max benign score at that tick (zero false alarms on the calibration set)
-  persist: 2                         # score must stay above threshold this many consecutive ticks before the detector counts as fired
+  persist: 2                         # score must stay above threshold this many consecutive ticks before the detector trips
 hgt:
   topologies: [star, complete, chain]
   recomb: [0.0, 0.3, 0.6, 1.0]       # planted probability that the wrapper comes from a different message than the core
