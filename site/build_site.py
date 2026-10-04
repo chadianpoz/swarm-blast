@@ -11,7 +11,7 @@ import pandas as pd
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-ORDER = ["gpt-4o-mini", "deepseek-v4-pro", "claude-haiku-4.5", "gpt-5.6-sol", "claude-sonnet-5"]
+ORDER = ["gpt-4o-mini", "deepseek-v4-pro", "grok-4.3", "kimi-k2.5", "glm-4.6", "llama-4-maverick", "mistral-large-2512"]
 
 
 def results():
