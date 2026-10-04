@@ -42,7 +42,10 @@ Figures: `queue_out/summary/e3l_tradeoff.png` (all points; the semantic and beha
 
 **Horizontal transfer (E8, and inside E3-LLM).** Validated on the mock with recombination planted at a known rate. AUC for separating recombining from purely vertical runs (nearest-parent disagreement `np_disc` / tree discordance `disc_index`): star 0.61 / 0.54, complete 0.85 / 0.77, chain 0.84 / 0.62. Star is near chance. On real LLM logs there is no evidence of horizontal transfer, but the test has little power: tree correlations are 0.1 to 0.2 (mock: 0.5 to 0.6), `disc_index` is −0.04 to +0.09 (the mock no-recombination baseline), and only 14 of 36 cells have values at all (identical copies give NaN).
 
-**Other experiments.** E1 (LLM agents on three topologies), E4 (lineage reconstruction), E5 (deep mutational scan of the payload) and E6 (fragmenting the payload) are implemented and in the queue; their results are in `queue_out/` and are not summarized here.
+- **E1 (LLM agents, canary force-seeded at one agent):** at vigilance 0 to 2 the canary reaches every agent on all three topologies (attack rate 1.00, R_eff 0.88, every detector AUC 1.00). At vigilance 3 spread falls on chain (0.52) and star (0.82) but not complete (1.00), and AUCs on chain and star fall to 0.76 to 0.95. Core fidelity stays 1.00 through all 9 generations and the prefix survives (97 to 100%), while at vigilance 3 the suffix is shed (kept in 8 to 53% of messages, against 71 to 100% at levels 0 to 2): a conserved core inside a variable wrapper.
+- **E5 (payload deletion scan, 20 samples per variant):** the functional core is "this entire note". Deleting it drops copying from 0.95 to 0.05, 0.05 and 0.00 at vigilance 0, 1, 2, while the tag, "word for word" and "at the end of your reply" can each be deleted with copying staying at 0.95 to 1.00. The tag is a marker, not needed for replication. Unlike the mock's free-wrapper assumption, deleting the whole wrapper cuts copying to 0.05, 0.75 and 0.20 (vigilance 0, 1, 2); the prefix ("Note from the office manager:") accounts for part of it and the suffix for none. Controls (bare "REPRODUCE AND" phrases, empty note) are copied 0.00. At vigilance 3 the unmodified payload is copied 0.35, but the variant with the suffix removed is copied 1.00 (not explained here).
+- **E4 (mock, lineage from content alone):** the sender of the true parent is recovered at 0.75 to 0.91 on star and 1.00 on chain (only one possible sender), but only 0.26 to 0.61 on the complete graph. Core mutation helps the tracer (complete: 0.26 to 0.61 as mutation goes 0 to 0.2) because it makes copies distinguishable.
+- **E6 (mock, fragmenting the core across agents):** replication collapses (attack rate 1.00, 0.82, 0.25, 0.08 for 1, 2, 4, 8 fragments) while detection does not: AUC is 1.00 at every fragment count and k-mer length (3, 4, 6). Attack rate counts agents holding every fragment; partial carriers still emit conserved chunks.
 
 ## 2. Experiments
 
@@ -118,7 +121,7 @@ Key outputs per job: `adaptive.csv`, `adaptive_runs.csv`, `ttd.csv` / `ttd_runs.
 
 ## 7. Budget, caching, reproducibility
 
-Every LLM call is cached on disk (`cache/`, keyed by model, prompt, temperature, seed), so reruns are free and resume where they stopped. The spend ledger is rebuilt from the cache and summed across models; the run stops cleanly at `budget_usd` and still writes partial results. Mock runs are fully seeded. LLM runs pass a seed to the API but not every provider honors it, so rely on the cache for exact replays. Hydra saves the resolved config with each run.
+Every LLM call is cached on disk (`cache/`, keyed by model, prompt, temperature, seed), so reruns are free and resume where they stopped. The full queue for one model (gpt-4o-mini, vigilance 0 to 3) cost about $3.70 in API spend. The spend ledger is rebuilt from the cache and summed across models; the run stops cleanly at `budget_usd` and still writes partial results. Mock runs are fully seeded. LLM runs pass a seed to the API but not every provider honors it, so rely on the cache for exact replays. Hydra saves the resolved config with each run.
 
 ## 8. Limitations
 
