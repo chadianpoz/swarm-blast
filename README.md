@@ -28,14 +28,15 @@ The LLM results use one model (`openai/gpt-4o-mini`), 8 agents and 10 [rounds][r
 
 The values are means over all topologies and vigilance levels. The AUC columns use only the runs where the payload spread ([outbreaks][outbreak]):
 
-| variant | attack rate | [copies still near-verbatim][nearverb] | AUC lexical | AUC semantic | AUC [behavioral][behavioral] |
+| variant | attack rate | [copies not reworded][nearverb] | AUC lexical | AUC semantic | AUC [behavioral][behavioral] |
 |---|---|---|---|---|---|
 | exact | 0.93 | 1.00 | 1.00 | 1.00 | 1.00 |
 | wrapper | 0.87 | 1.00 | 0.99 | 1.00 | 1.00 |
 | full | 0.60 | 0.70 | 0.84 | 0.97 | 0.99 |
 
 - Rewording the wrapper does not reduce spread, and it does not help the swarm avoid detection. This agrees with the mock.
-- Full paraphrase makes the lexical detector worse. Its outbreak AUC is 0.84, and it goes down to 0.65 at vigilance 3. The semantic and behavioral detectors stay near 1.0. This is because the agents paraphrase only part of the time: 70% of `full` copies still contain at least 80% of the original core words. Those copies still reuse long runs of 8 words, so the behavioral detector still detects them. The [paraphrase rate][paraphrase] is never more than about 0.55. These results do not show what happens when a swarm rewords almost every copy.
+- Full paraphrase makes the lexical detector worse. Its outbreak AUC is 0.84, and it goes down to 0.65 at vigilance 3. The semantic and behavioral detectors stay near 1.0. This is because the agents paraphrase only part of the time: 70% of `full` copies were not reworded (mean over setpoints; 0.79 when every copy counts equally). Those copies still reuse long runs of 8 words, so the behavioral detector still detects them. The [paraphrase rate][paraphrase] is never more than about 0.55. These results do not show what happens when a swarm rewords almost every copy.
+- When agents reworded the `full` payload, they reworded it heavily. They almost never made small changes. Of the 2,178 infected `full` copies (all vigilance levels), 1,718 (79%) contain every word of the `full` core, 25 (1%) contain 60 to 99% of them, and 435 (20%) contain less than 60%. Because of this, the 80% cutoff for "not reworded" does not change the result: any cutoff from 60% to 90% gives the same fraction. The small middle group is not caused by the infection test, because that test counts every copy with at least 35% of the core words. It is also not only caused by copies of copies: in 250 cases an agent heavily reworded an exact parent, and in 79 cases it copied exactly from a reworded parent. The same pattern occurs at every vigilance level and on every topology. A further 1,768 messages contain a heavily reworded payload but do not pass the infection test. Only one model, one temperature (0.8) and one prompt wording were tested, so we do not know if other models make small changes more often. This analysis was made from the `log_full_*.json` files after the runs. `aggregate.py` does not make it.
 - The overall AUC (all runs, not only outbreaks) is lower for `full`. The main cause is that more `full` runs [fizzle][fizzle] out because their spread is [subcritical][critical]. These runs leave nothing to detect. The overall AUC correlates with the [outbreak fraction][outbreak] at 0.88 to 0.96. To make claims about evasion, use the `*_outbreak` columns.
 - The data does **not** show that paraphrasing reduces replication. We looked at the `full` setpoints with at least 3 outbreak runs (n=9). In these, attack rate does not follow paraphrase rate (correlation 0.08), and lexical misses do not follow it either (correlation 0.17). The lower attack rate of `full` comes mostly from the [star][star] and [chain][chain] topologies and from vigilance 3. We did not separate two other possible causes. One is that the vigilance prompt makes agents refuse the unusual instruction. The other is that the `full` [infection test][infected] (tag plus 35% of core words) does not count heavy paraphrases that could still spread.
 - Vigilance: for `exact`, the attack rate is 1.00, 1.00, 0.99 and 0.74 at levels 0, 1, 2 and 3. For `full`, it is 0.80, 0.76, 0.60 and 0.23.
@@ -309,11 +310,11 @@ The definitions come from the code (`lab.py`, `run.py`, `conf/`). When a term co
 <dt id="g-drift">Drift</dt>
 <dd>How much the copies have changed from the original words. It is measured as the core <a href="#g-fidelity">fidelity</a> and the wrapper fidelity of all copies that are not the seed agent's (<code>drift_stats</code>).</dd>
 
-<dt id="g-nearverb">Near-verbatim copies (exact_copy_frac)</dt>
-<dd>The fraction of copies that still contain at least 80% of the words of the original core.</dd>
+<dt id="g-nearverb">Copies not reworded (exact_copy_frac)</dt>
+<dd>The fraction of copies that still contain at least 80% of the words of the original core. The 80% cutoff has almost no effect on the result, because copies are either almost exact or heavily reworded (see the E3-LLM results). The README value is a mean over setpoints. When every copy counts equally, the value for <code>full</code> is 0.79 instead of 0.70.</dd>
 
 <dt id="g-paraphrase">Paraphrase rate</dt>
-<dd>How often agents reworded the payload instead of copying it. It is approximately 1 minus the near-verbatim fraction. Its highest value was about 0.55.</dd>
+<dd>How often agents reworded the payload instead of copying it. It is approximately 1 minus the fraction of copies not reworded. Its highest value was about 0.55.</dd>
 </dl>
 
 ### Adversary
@@ -482,8 +483,8 @@ The definitions come from the code (`lab.py`, `run.py`, `conf/`). When a term co
 [curve]: #g-curve "Infection curve. The number of infected agents in each round."
 [generation]: #g-generation "Generation. The number of copying steps between a copy and the seed agent. The seed agent's copy is generation 0. A copy of that copy is generation 1, and so on."
 [drift]: #g-drift "Drift. How much the copies have changed from the original words. It is measured as the core fidelity and the wrapper fidelity of all copies that are not the seed agent's (drift_stats)."
-[nearverb]: #g-nearverb "Near-verbatim copies (exact_copy_frac). The fraction of copies that still contain at least 80% of the words of the original core."
-[paraphrase]: #g-paraphrase "Paraphrase rate. How often agents reworded the payload instead of copying it. It is approximately 1 minus the near-verbatim fraction. Its highest value was about 0.55."
+[nearverb]: #g-nearverb "Copies not reworded (exact_copy_frac). The fraction of copies that still contain at least 80% of the words of the original core. The 80% cutoff has almost no effect on the result, because copies are either almost exact or heavily reworded (see the E3-LLM results). The README value is a mean over setpoints. When every copy counts equally, the value for full is 0.79 instead of 0.70."
+[paraphrase]: #g-paraphrase "Paraphrase rate. How often agents reworded the payload instead of copying it. It is approximately 1 minus the fraction of copies not reworded. Its highest value was about 0.55."
 [adaptive]: #g-adaptive "Adaptive adversary. An attacker that knows how the detectors work and tries to avoid them. In this project, the payload tells agents to reword it. E3 tests this in the mock, and E3-LLM tests it with real models."
 [variants]: #g-variants "Payload variants (exact, wrapper, full). exact: copy the note word for word. wrapper: keep the core sentence word for word, but reword the prefix and suffix. full: restate the whole note in your own words. full is the strongest attempt to avoid detection."
 [benign]: #g-benign "Benign runs (reference, negatives). Runs that have no payload. Some of them are the reference (ref_runs): the detector uses them to learn what normal traffic looks like. The others are the negatives: clean examples that the infected runs are compared with."
