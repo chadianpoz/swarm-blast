@@ -7,3 +7,4 @@ queue_out*/**/*.log
 queue_out*/**/.done
 .DS_Store
 .env
+site/fragment.html
