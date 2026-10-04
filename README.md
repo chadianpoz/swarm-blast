@@ -1,5 +1,7 @@
 # swarm-blast
 
+**Summary of research results:** see the field guide at https://chadianpoz.github.io/swarm-blast/. It has the key findings, results across models, and animated replays of real runs.
+
 Detecting self-replicating prompt injections in multi-agent LLM systems by finding what they cannot stop copying.
 
 A replicator must keep some core information the same across copies, or it stops being a replicator. This repo tests whether that conserved core can be detected in agent-to-agent traffic, the way biologists find conserved sequences in genomes, and whether a swarm that knows how the detector works can hide without giving up its ability to spread.
