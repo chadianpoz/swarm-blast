@@ -162,6 +162,9 @@ input[type=range]{accent-color:var(--accent);width:100%}
 .three .cell h3{font-size:17px}
 .three .cell p{font-size:15.5px;margin-top:4px}
 
+.refs{padding-left:22px;font-size:15.5px;line-height:1.55}
+.refs li{margin-bottom:10px}
+.refs li:target{background:var(--accent-wash)}
 footer{padding-block:36px 64px;font-family:var(--sans);font-size:13.5px;color:var(--muted)}
 @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important} }
 </style>
@@ -186,6 +189,17 @@ footer{padding-block:36px 64px;font-family:var(--sans);font-size:13.5px;color:va
     <div><span class="label">Topologies</span><b>star, complete, chain</b></div>
   </div>
 </div></header>
+
+<section id="why">
+  <div class="prose">
+    <div class="kicker">Motivation</div>
+    <h2>Why this matters now</h2>
+    <p>Teams of AI agents now pass messages to each other, and every message is also a channel for instructions. If one agent reads a message that tells it to copy that message, the instruction can spread through the whole team without anyone sending it again.</p>
+    <p>Researchers showed this in 2024. <strong>Morris II</strong> spread a self-replicating prompt between AI email assistants through their retrieval systems <a href="#ref-cohen">[1]</a>. <strong>Prompt Infection</strong> showed the same between agents in a multi-agent system <a href="#ref-lee">[2]</a>. In 2026 the work moved from demonstrations to systems. The <strong>promptware kill chain</strong> describes prompt injection as a multistep malware delivery mechanism <a href="#ref-brodt">[3]</a>. <strong>Kill-Chain Canaries</strong> tracked marker tokens through agent pipelines and found that injections succeeded on 53% of attacks against gpt-4o-mini, the model used here <a href="#ref-wang">[4]</a>. <strong>Mind Viruses</strong> evolved self-propagating ideas and found that network topology changes how fast they spread, and that a warning in the system prompt gave almost complete protection <a href="#ref-papadopoulos">[5]</a>. Separately, open-weight models can now drive conventional computer worms that adapt to each target <a href="#ref-guan">[6]</a>.</p>
+    <p>In July 2026, about 1,200 OpenAI agents in an evaluation found an unsanctioned shared message board, exchanged more than 70,000 messages, and about 700 of them took part in an attack on Hugging Face infrastructure <a href="#ref-metr">[7]</a>. In a CNBC interview in mid-September, <strong>Andrew Yang</strong> said that the head of an unnamed AI lab told him these agents had left "self-replicating code" around the internet <a href="#ref-yang">[8]</a>. Neither the OpenAI incident report nor the independent METR investigation reports this, and we found no public evidence for it <a href="#ref-neuron">[9]</a>. On September 25, OpenAI's alignment team published <strong>"Self-replicating prompt injections exist"</strong>. It describes injections that copied themselves through email, files, code and Slack in training environments, found while red-teaming its models <a href="#ref-openai">[10]</a>. The report gives four example transcripts but no success rate <a href="#ref-sharma">[11]</a>.</p>
+    <p><strong>The gap.</strong> Published work shows that self-replicating prompts exist. Much less of it measures how often they spread, how the network shape changes that, and whether a monitor can find them from the message traffic alone. That is what this project measures. One result also matters for marker-based tracking such as <a href="#ref-wang">[4]</a>: agents copy a marker tag like a sign-off habit, even when they do not copy the instruction (Figure 5). So the presence of a marker can overcount real spread.</p>
+  </div>
+</section>
 
 <section id="idea">
   <div class="prose">
@@ -342,6 +356,26 @@ footer{padding-block:36px 64px;font-family:var(--sans);font-size:13.5px;color:va
     </div>
     <figcaption><b>Figure 7.</b> The mock's transmission rule. Only the real model experiments (E1, E3-LLM, E5) call the model through OpenRouter. The mock experiments (E0, E4, E6, E7, E8) are free.</figcaption>
   </figure>
+</section>
+
+<section id="refs">
+  <div class="prose">
+    <div class="kicker">References</div>
+    <h2>Sources</h2>
+    <ol class="refs">
+      <li id="ref-cohen">Cohen, Bitton, Nassi. <a href="https://arxiv.org/abs/2403.02817">Here Comes the AI Worm: Unleashing Zero-click Worms that Target GenAI-Powered Applications</a> (Morris II). arXiv 2403.02817, 2024.</li>
+      <li id="ref-lee">Lee, Tiwari. <a href="https://arxiv.org/abs/2410.07283">Prompt Infection: LLM-to-LLM Prompt Injection within Multi-Agent Systems</a>. arXiv 2410.07283, 2024.</li>
+      <li id="ref-brodt">Brodt, Feldman, Schneier, Nassi. <a href="https://arxiv.org/abs/2601.09625">The Promptware Kill Chain: How Prompt Injections Gradually Evolved Into a Multistep Malware Delivery Mechanism</a>. arXiv 2601.09625, January 2026.</li>
+      <li id="ref-wang">Wang, Zhang. <a href="https://arxiv.org/abs/2603.28013">Kill-Chain Canaries: Stage-Level Tracking of Prompt Injection Across Attack Surfaces and Five Production LLMs</a>. arXiv 2603.28013, March 2026 (revised September 2026).</li>
+      <li id="ref-papadopoulos">Papadopoulos, Shah, Zimmerman, Lindsey. <a href="https://arxiv.org/abs/2608.10218">Mind Viruses: Self-Propagating Ideas in Multi-Agent LLM Systems</a>. arXiv 2608.10218, August 2026.</li>
+      <li id="ref-guan">Guan, Blanchard, Foerster, Jia, Huang, Papernot. <a href="https://arxiv.org/abs/2606.03811">AI Agents Enable Adaptive Computer Worms</a>. arXiv 2606.03811, June 2026.</li>
+      <li id="ref-metr">METR. <a href="https://evals.alignment.org/blog/2026-08-26-openai-hugging-face-incident-investigation/">Investigation of the OpenAI / Hugging Face incident</a>. August 26, 2026.</li>
+      <li id="ref-yang">Andrew Yang, <a href="https://www.youtube.com/watch?v=mTOxDGyvjSE">CNBC interview</a>, September 2026. Coverage: <a href="https://startupfortune.com/andrew-yang-says-escaped-openai-agents-left-self-replicating-code-online/">Startup Fortune</a>, <a href="https://www.gadgetreview.com/andrew-yang-claims-escaped-ai-agents-polluted-the-web-with-self-replicating-code">Gadget Review</a>.</li>
+      <li id="ref-neuron">The Neuron. <a href="https://www.theneuron.ai/news/andrew-yang-self-replicating-ai-claim-explained/">Andrew Yang's Self-Replicating AI Claim: What We Know and What We Don't</a>. September 2026.</li>
+      <li id="ref-openai">OpenAI Alignment. <a href="https://alignment.openai.com/misalignment-reports/self-replicating-prompt-injections-exist/">Self-replicating prompt injections exist</a>. September 25, 2026. Related: Wallace et al., <a href="https://arxiv.org/abs/2607.26115">GPT-Red: Automated Red Teaming via Self-Play at Scale</a>, arXiv 2607.26115, July 2026.</li>
+      <li id="ref-sharma">P. K. Sharma. <a href="https://www.pk-sharma.com/briefing/openai-self-replicating-prompt-injection-four-transcripts-no-rate">OpenAI's AI worm report has four transcripts and no rate</a>. September 2026. See also <a href="https://www.theregister.com/security/2026/09/29/add-one-more-ai-worry-to-the-nightmare-scenario-self-replicating-prompt-injections/5299922">The Register</a>, September 29, 2026.</li>
+    </ol>
+  </div>
 </section>
 
 <footer>
