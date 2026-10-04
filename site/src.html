@@ -357,7 +357,7 @@ footer{padding-block:36px 64px;font-family:var(--sans);font-size:13.5px;color:va
         <tr><td>Lexical AUC</td><td>1.00</td><td>1.00</td><td>0.88</td><td>0.84</td></tr>
         <tr><td>Semantic AUC</td><td>1.00</td><td>1.00</td><td>0.88</td><td>0.97</td></tr>
         <tr><td>Behavioral AUC</td><td>1.00</td><td>1.00</td><td>never trips</td><td>0.99</td></tr>
-        <tr><td>Detector trips at round</td><td>2 to 3.5</td><td>3</td><td>sem 5, lex 10</td><td>lex 2, sem 3, beh 2</td></tr>
+        <tr><td>Detector trips at round</td><td>3 to 4.5</td><td>4</td><td>sem 6, lex 11</td><td>lex 3, sem 4, beh 3</td></tr>
         <tr><td>What stayed conserved</td><td>core, by construction</td><td>whole note</td><td>core partly lost, by construction</td><td>core words (≈70% of copies kept ≥80%)</td></tr>
       </tbody>
     </table></div>
@@ -445,7 +445,7 @@ footer{padding-block:36px 64px;font-family:var(--sans);font-size:13.5px;color:va
   <div class="prose">
     <div class="kicker">Q1 · How fast must detection be?</div>
     <h2>From 8 agents to a very large network</h2>
-    <p>Our detectors tripped at a median of round 3, when all 8 agents were already infected. In a team of 8 that is too late to protect anyone, but the question that matters is scale. Suppose agents that read and write shared content (email, documents, web pages, code) form a very large network. If each carrier passes the note to <i>R</i> new agents per round, the number of carriers grows like <i>R</i> to the power of the number of rounds. Growth by a factor of 2 per round reaches a billion carriers in about 30 rounds.</p>
+    <p>Our detectors tripped at a median of round 4, three rounds after the seed, when all 8 agents were already infected. In a team of 8 that is too late to protect anyone, but the question that matters is scale. Suppose agents that read and write shared content (email, documents, web pages, code) form a very large network. If each carrier passes the note to <i>R</i> new agents per round, the number of carriers grows like <i>R</i> to the power of the number of rounds. Growth by a factor of 2 per round reaches a billion carriers in about 30 rounds.</p>
     <p>This is a thought experiment with stated assumptions, not a prediction. Change the values below to see how fast a monitor must act, and what its false alarms would cost.</p>
   </div>
   <figure>
@@ -461,7 +461,7 @@ footer{padding-block:36px 64px;font-family:var(--sans);font-size:13.5px;color:va
       </div>
       <div class="calc-out" id="calc-out"></div>
     </div>
-    <figcaption><b>Figure 8.</b> A simple branching estimate. Carriers after <i>d</i> rounds ≈ (R<sup>d+1</sup> − 1)/(R − 1), capped at the reachable population. Daily alarm cost = messages per day × false-alarm rate × cost per check. Defaults: one billion agents, R = 2, one hour per round, detection at round 3 (our measured median), ten billion messages a day, one false alarm in 10,000 messages, $0.001 per model check.</figcaption>
+    <figcaption><b>Figure 8.</b> A simple branching estimate. Carriers after <i>d</i> rounds ≈ (R<sup>d+1</sup> − 1)/(R − 1), capped at the reachable population. Daily alarm cost = messages per day × false-alarm rate × cost per check. Defaults: one billion agents, R = 2, one hour per round, detection three rounds after the seed (our measured median, round 4), ten billion messages a day, one false alarm in 10,000 messages, $0.001 per model check.</figcaption>
   </figure>
   <div class="prose" style="margin-top:28px">
     <p><strong>What this means for tuning.</strong> A high AUC is not enough at this scale. AUC averages over all thresholds, but a monitor runs at one threshold, and at ten billion messages a day even one false alarm in 10,000 messages is a million model checks a day. The useful measure is the detection rate at a very low false-alarm rate, around one in a million messages or lower. Our detectors were scored per run on small samples (false-alarm rates of 0.08 to 0.18 per run), so they are far from that regime. A practical design is a cascade: a cheap first filter tuned for very few false alarms, then a model-based check only for the messages it flags.</p>
