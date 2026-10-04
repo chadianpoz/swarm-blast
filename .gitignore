@@ -8,3 +8,5 @@ queue_out*/**/.done
 .DS_Store
 .env
 site/fragment.html
+queue_out/e3lR_*/
+queue_out/e3l_v*mistral*/

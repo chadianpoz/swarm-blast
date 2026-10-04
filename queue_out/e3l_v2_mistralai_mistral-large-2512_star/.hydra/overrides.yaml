@@ -1,8 +1,0 @@
-- experiment=e3l
-- model=mistralai/mistral-large-2512
-- llm.vigilance=2
-- budget_usd=180
-- llm.neg=16
-- llm.ref_runs=4
-- llm.topologies=[star]
-- reasoning={enabled:false}
