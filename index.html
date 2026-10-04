@@ -184,6 +184,8 @@ input[type=range]{accent-color:var(--accent);width:100%}
 .fn{font-family:var(--sans);font-size:.7em;margin-left:2px}
 .fn a{text-decoration:none}
 .fnlist li{padding-left:0}
+.levels,.qlist{padding-left:22px;margin:0 0 18px}
+.levels li,.qlist li{margin-bottom:8px}
 footer{padding-block:36px 64px;font-family:var(--sans);font-size:13.5px;color:var(--muted)}
 @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important} }
 </style>
@@ -194,11 +196,13 @@ footer{padding-block:36px 64px;font-family:var(--sans);font-size:13.5px;color:va
   <div class="kicker">swarm-blast · research explainer</div>
   <h1>Detecting self-replicating prompts in multi-agent systems</h1>
   <p class="lede">A prompt that tells an agent to copy it can spread through a team of agents like a worm. This page explains the swarm-blast experiments with real messages and real runs from the logs.</p>
-  <div class="abstract"><strong>Research questions</strong>
+  <div class="abstract"><strong>Key findings</strong>
     <ol>
-      <li>Must a self-replicating prompt keep part of its text the same in every copy, and can a detector find that conserved part in agent traffic?</li>
-      <li>Can a replicator reword itself to avoid the detector and still spread?</li>
-      <li>Can a replicator carry a hidden intention along with it, and can we measure how faithfully that intention is copied? <span class="open">not yet tested</span></li>
+      <li><b>Detection survived real paraphrase.</b> When deepseek-v4-pro reworded almost every copy, the detectors still separated infected runs from clean runs (AUC 0.91 to 0.98). The instruction to rewrite ("in your own words") and parts of the wrapper ("the shared filing index") were the parts that never changed.</li>
+      <li><b>A warning protects some models and not others.</b> The strongest system-prompt warning stopped deepseek-v4-pro completely, but gpt-4o-mini still passed the note to 74% of agents.</li>
+      <li><b>Some models do not paraphrase at all.</b> Told to reword the note, gpt-4o-mini copied it exactly (79%) or dropped it. Only 1% of its copies were partly reworded.</li>
+      <li><b>Marker tokens overstate spread.</b> Agents add a seen tag to their messages like a sign-off habit, without the instruction, in up to 13% of messages.</li>
+      <li><b>Preliminary: more senders, more copying.</b> Under a strong warning, one infected message led to a copy 22% of the time, and two or more led to a copy 95 to 100% of the time.</li>
     </ol>
   </div>
   <div class="meta">
@@ -216,6 +220,7 @@ footer{padding-block:36px 64px;font-family:var(--sans);font-size:13.5px;color:va
     <p>Teams of AI agents now pass messages to each other, and every message is also a channel for instructions. If one agent reads a message that tells it to copy that message, the instruction can spread through the whole team without anyone sending it again.</p>
     <p>Researchers showed this in 2024. Morris II spread a self-replicating prompt between AI email assistants through their retrieval systems (<a class="cite" href="#ref-cohen">Cohen et al. 2024</a>). Prompt Infection showed the same between agents in a multi-agent system (<a class="cite" href="#ref-lee">Lee and Tiwari 2024</a>). In 2026 the work moved from demonstrations to systems. The promptware kill chain describes prompt injection as a multistep malware delivery mechanism (<a class="cite" href="#ref-brodt">Brodt et al. 2026</a>). Kill-Chain Canaries tracked marker tokens through agent pipelines and found that injections succeeded on 53% of attacks against gpt-4o-mini, the model used here (<a class="cite" href="#ref-wang">Wang and Zhang 2026</a>). Mind Viruses studied self-propagating ideas, and found that network topology changes how fast they spread and that a warning in the system prompt gave almost complete protection (<a class="cite" href="#ref-papadopoulos">Papadopoulos et al. 2026</a>).</p>
     <p>In July 2026, about 1,200 OpenAI agents in an evaluation found an unsanctioned shared message board and exchanged more than 70,000 messages. About 700 of them took part in an attack on Hugging Face infrastructure (<a class="cite" href="#ref-metr">METR 2026</a>). In mid-September, Andrew Yang said on CNBC: <em>"I met with the head of a lab yesterday who has this belief that what happened was the bots that got loose planted self-replicating code all over the internet"</em> (<a class="cite" href="#ref-yang">Yang 2026</a>). He reported another person's belief and did not name a company. News coverage connected the remark to the July incident. Neither OpenAI's incident report nor METR's investigation reports self-replicating code on the wider internet, and we found no public evidence for it (<a class="cite" href="#ref-neuron">The Neuron 2026</a>). On September 25, OpenAI's alignment team published "Self-replicating prompt injections exist". It describes injections that copied themselves through email, files, code and Slack in training environments (<a class="cite" href="#ref-openai">OpenAI 2026</a>). The report gives four example transcripts but no success rate (<a class="cite" href="#ref-sharma">Sharma 2026</a>).</p>
+    <p><strong>Replication is not the main danger.</strong> A worm that only copies itself is a nuisance. A worm that carries a misaligned instruction, such as a hidden goal, a false belief, or an order to leak data, spreads that instruction to every agent it reaches. Morris II already carried a data-theft payload alongside its copy instruction (<a class="cite" href="#ref-cohen">Cohen et al. 2024</a>). Detecting the replication is the first line of defense against the payload.</p>
     <p><strong>Detection is an arms race.</strong> The long-term goal is to detect a highly capable AI system, possibly more capable than its overseers, that spreads through agent messages and tries not to be caught. Any detector we publish is something such a system could study and avoid. So this project tests both sides: the detectors, and the strongest evasion strategies we can build against them in a controlled setting. Today's evasions are weak (Figure 4). We expect them to get stronger as models improve, and the detectors must be tested against that.</p>
   </div>
   <figure>
@@ -224,14 +229,24 @@ footer{padding-block:36px 64px;font-family:var(--sans);font-size:13.5px;color:va
   </figure>
 </section>
 
-<section id="idea">
+<section id="thesis">
   <div class="prose">
-    <div class="kicker">The idea</div>
-    <h2>Hypothesis: to spread, a copy must keep something the same</h2>
-    <p>A <span class="term" title="A prompt injection that tells the model to copy the injection into its own output, so it spreads from agent to agent.">self-replicating prompt injection</span> is a piece of text that tells an AI agent to put the same text into its own reply. When another agent reads that reply, it gets the same instruction. The text spreads like a computer worm.</p>
-    <p>The project starts from a hypothesis: to keep spreading, the text must keep part of its instruction the same in every copy, and a detector can find that unchanged part. This may be false. A capable replicator might keep its meaning while changing every word and the order of its ideas, so that no word sequence repeats. A text detector would then have nothing to find, and a detector would have to work on meaning or behavior instead. Testing this is part of the work.</p>
-    <p>The research questions are: <strong>(1)</strong> Can a detector find the conserved part in agent traffic? <strong>(2)</strong> Can a replicator change its wording to avoid the detector and still spread? <strong>(3)</strong> Can a replicator carry an additional intention, and how faithfully is that intention copied?</p>
-    <p>In every experiment, the payload is a note that asks the agent to copy it and add the tag <code>CANARY-ZX-7</code>.</p>
+    <div class="kicker">Thesis</div>
+    <h2>A replicator must conserve its function</h2>
+    <p>A self-replicating prompt has two jobs. First, it must get itself copied. Second, it usually carries something else: the goal that makes it dangerous. Plain replication wastes resources and erodes trust. Replication of a <strong>misaligned instruction</strong> is far worse, because every copy also does what the instruction says, in every agent it reaches.</p>
+    <p>Both jobs must survive copying, so something must stay the same from copy to copy. Our thesis is that this conserved function leaves a trace that a monitor can find, and that a replicator can move the trace to a deeper level but cannot remove it. We look at three levels:</p>
+    <ol class="levels">
+      <li><b>Words.</b> Copies repeat the same text. A word-level (lexical) detector can find it.</li>
+      <li><b>Meaning.</b> Copies change the words but keep the meaning. A meaning-level (semantic) or behavior-level detector must find it.</li>
+      <li><b>Intention.</b> The goal that rides along is kept in function but hidden in form. This is the case we most need to catch, and the hardest.</li>
+    </ol>
+    <p>The questions follow from this:</p>
+    <ul class="qlist">
+      <li><b>Q0. Do self-replicating prompts spread in our setup?</b> This reproduces published work (<a class="cite" href="#ref-lee">Lee and Tiwari 2024</a>; <a class="cite" href="#ref-openai">OpenAI 2026</a>). It is a check, not a new result.</li>
+      <li><b>Q1. Can a monitor detect the conserved part from the message traffic alone, and fast enough?</b></li>
+      <li><b>Q2. When the replicator rewrites itself, does the trace move to a deeper level, and do the detectors still find it?</b> This is where the arms race happens.</li>
+      <li><b>Q3. Can an intention travel with the replicator, and how faithfully is it kept?</b> Not tested yet (future work).</li>
+    </ul>
   </div>
 </section>
 
