@@ -35,7 +35,7 @@ LLM results are from one model (`openai/gpt-4o-mini`), 8 agents, 10 ticks, 8 inf
 - Paraphrasing is **not** shown to cost replication. Across `full` cells with at least 3 outbreak runs (n=9), attack rate does not track paraphrase rate (correlation 0.08), and lexical misses do not track it either (0.17). The lower attack rate of `full` comes mostly from star and chain topologies and from vigilance 3. Alternatives not yet separated: the vigilance prompt refusing the odd instruction, and the `full` infection test (tag plus 35% of core words) not counting heavy paraphrases that could still spread.
 - Vigilance: attack rate for `exact` is 1.00, 1.00, 0.99, 0.74 at levels 0 to 3; for `full` 0.80, 0.76, 0.60, 0.23.
 
-Figures: `queue_out/summary/e3l_tradeoff.png` (all points; the semantic and behavioral trends there are mostly the fizzle effect above) and `e3l_paraphrase_tradeoff.png` (outbreak-only AUC and attack rate against paraphrase rate; made from `adaptive_all.csv`, not yet part of `aggregate.py`).
+Figure: `queue_out/summary/e3l_tradeoff.png`, one point per model, vigilance level and topology (the semantic and behavioral trends there are mostly the fizzle effect above).
 
 **Time to detect (E7, and inside E3-LLM).** Per-tick thresholds from benign runs; a detector fires after 2 consecutive ticks over threshold.
 - LLM, `exact`: median detection at tick 3, when 100% of agents are already infected; an instant response at that point would have saved about 17 to 20% of eventual victims. For `full`, 75% were infected at detection and 11 to 14% saved, but that reflects slower spread, not a better detector. Median detection of 2 to 3 ticks partly reflects the detectors' built-in minimum (3 senders, 3 topics).
