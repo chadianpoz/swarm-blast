@@ -407,7 +407,7 @@ def e3l(cfg):
 
 
 def e7(cfg):
-    """Time to detect on the mock: first tick at which each detector fires, and how much of the outbreak that saves."""
+    """Time to detect on the mock: first round (tick) at which each detector trips, and the fraction of agents that an instant response at that round could protect."""
     base = mock_base(cfg)
     T = cfg.ttd
     dets = list(lab.DETS)
