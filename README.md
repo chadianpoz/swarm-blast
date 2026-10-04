@@ -4,7 +4,7 @@ This project detects [self-replicating prompt injections][worm] in [multi-agent]
 
 A [replicator][worm] must keep some information the same in every copy. If it does not, it stops being able to replicate. This repo asks three questions. First, can a detector find this unchanged part (the [conserved core][core]) in the messages that agents send to each other? Biologists use a similar method to find [conserved sequences][conserved] in genomes. Second, can a [swarm][swarm] that knows how the detector works hide from it and still spread? Third, can a replicator carry a hidden intention (an extra goal or piece of information) along with the copy instruction, and can we measure how faithfully that intention is copied? The current experiments do not test the third question: the payload carries only the copy instruction and the tag.
 
-**Explainer:** an animated field guide with real runs is at https://chadianpoz.github.io/swarm-blast/.
+**Summary of research results:** see the field guide at https://chadianpoz.github.io/swarm-blast/. It has the key findings, results across models, and animated replays of real runs.
 
 **Safety note.** Every [payload][payload] is a harmless [canary][canary]. It only tells the agent to copy a note and add a harmless [tag][tag] at the end. All tools are simulated, and the code does not touch real files or networks. The research question is detection. It is not how to build better worms.
 
