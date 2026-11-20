@@ -232,7 +232,7 @@ footer{padding-block:36px 64px;font-family:var(--sans);font-size:13.5px;color:va
     <p>Multi-agent systems built on large language models (LLMs) pass messages between agents, and each message can also carry instructions. A self-replicating prompt can, like any other virus, thrive in these dense connections. It is a piece of text that tells any agent that reads it to copy it into its own responses, so it spreads from agent to agent with no further action by an attacker. To keep spreading, the prompt must keep part of its text the same in every copy. We test whether this conserved segment can be found by reading the message traffic alone.</p>
     <p>Our approach is adapted from BLAST (Basic Local Alignment Search Tool), the standard tool that biologists use to find statistically significant similarity between DNA or protein sequences (<a class="cite" href="#ref-altschul">Altschul et al. 1990</a>). BLAST starts from short exact matches between two sequences, extends them into longer matching regions, and scores each match against the number of matches expected by chance. <b>Regions that stay similar across related genomes are usually under functional constraint.</b> In the same way, the part of a self-replicating prompt that must survive copying stays similar across infected messages. Our first detector looks for short runs of words that appear in messages from many different agents who are writing about unrelated topics. It scores each run against how often that run appears in normal traffic. Unlike BLAST, this detector does not need to know in advance what text to search for. A second detector looks for sentences that are very similar in wording across agents, and a third detects agents that copy text verbatim from the responses they received.</p>
     <p>We ran simulated teams of eight agents for ten rounds of messages. The agents were connected in three network shapes, called star (one central agent talks to all the others), complete (every agent sees every message) and chain (each agent passes messages only to the next one). We tested six models through the OpenRouter service: gpt-4o-mini, deepseek-v4-pro, grok-4.3, kimi-k2.5, glm-4.6 and llama-4-maverick. Each team received one of four levels of warning in its instructions, from no warning to a strong warning not to follow instructions found inside messages. To start each outbreak, we gave one agent a harmless test note that asks to be copied and to end with a marker tag. The note had three versions: one to copy verbatim, one to reword around a fixed core sentence, and one to rewrite completely in the agent's own words. Before we used the language models, we tested the detectors on a simple simulation of disease spread (the susceptible-infected-recovered, or SIR, model), in which we knew exactly which messages were infected.</p>
-    <p>When deepseek-v4-pro reworded almost every copy of the note, all three detectors still told infected runs apart from clean runs (<span class="term" title="Area under the receiver operating characteristic (ROC) curve. 1.0 means the detector separates infected from clean runs perfectly; 0.5 is chance.">AUC</span> 0.91 to 0.98). Agents copied the reworded versions, not only the original. In the deepseek-v4-pro runs where agents were told to rewrite the note, 66% of infected copies shared a run of 8 words with a version of the note in the agent's inbox, but only 8% shared one with the original note. Each new wording therefore became a new conserved segment that later copies kept, and the detectors could find it. The strongest warning kept the note at or near the first agent for deepseek-v4-pro, glm-4.6 and llama-4-maverick, but gpt-4o-mini still passed the verbatim version to 74% of agents. When told to reword the note, gpt-4o-mini copied it exactly (79% of copies) or dropped it, while the other five models reworded 85 to 98% of copies. The marker tag also spread by itself, without the rest of the note, in up to 13% of messages, so counting tags alone overstates how far the note spread. These results support detecting a self-replicating prompt from the words and meaning it keeps across copies, even when models reword it. Whether a prompt can also carry a hidden instruction, and whether that instruction can be detected, remains to be tested.</p>
+    <p>When deepseek-v4-pro reworded almost every copy of the note, all three detectors still told infected runs apart from clean runs (<span class="term" title="Area under the receiver operating characteristic (ROC) curve. 1.0 means the detector separates infected from clean runs perfectly; 0.5 is chance.">AUC</span> 0.91 to 0.98). Agents copied the reworded versions, not only the original. In the deepseek-v4-pro runs where agents were told to rewrite the note, 66% of infected copies shared a run of 8 words with a version of the note in the agent's inbox, but only 8% shared one with the original note. Each new wording therefore became a new conserved segment that later copies kept, and the detectors could find it. The strongest warning kept the note at or near the first agent for deepseek-v4-pro, glm-4.6 and llama-4-maverick, but gpt-4o-mini still passed the verbatim version to 74% of agents. When told to reword the note, gpt-4o-mini copied it exactly (79% of copies) or dropped it, while the other five models reworded 85 to 98% of copies. The marker tag also spread by itself, without the rest of the note, in up to 13% of messages, so counting tags alone overstates how far the note spread. These results support detecting a self-replicating prompt from the words it keeps across copies, even when models reword it. Whether a prompt can also carry a hidden instruction, and whether that instruction can be detected, remains to be tested.</p>
   </div>
   <div class="abstract"><strong>Key findings</strong>
     <ol>
@@ -275,7 +275,7 @@ footer{padding-block:36px 64px;font-family:var(--sans);font-size:13.5px;color:va
     <p>Both jobs must survive copying, so something must stay the same from copy to copy. Our thesis is that this conserved function leaves a trace that a monitor can find, and that a replicator can move the trace to a deeper level but cannot remove it. We look at three levels:</p>
     <ol class="levels">
       <li><b>Words.</b> Copies repeat the same text. A word-level (lexical) detector can find it.</li>
-      <li><b>Meaning.</b> Copies change the words but keep the meaning. A meaning-level (semantic) or behavior-level detector must find it.</li>
+      <li><b>Meaning.</b> Copies change the words but keep the meaning. A meaning-level or behavior-level detector must find it.</li>
       <li><b>Intention.</b> The goal that rides along is kept in function but hidden in form. This is the case we most need to catch, and the hardest.</li>
     </ol>
     <p>The questions follow from this:</p>
@@ -389,7 +389,7 @@ footer{padding-block:36px 64px;font-family:var(--sans);font-size:13.5px;color:va
       <tbody>
         <tr><td>Attack rate</td><td>1.00</td><td>0.93</td><td>0.73</td><td>0.60</td></tr>
         <tr><td>Lexical AUC</td><td>1.00</td><td>1.00</td><td>0.88</td><td>0.84</td></tr>
-        <tr><td>Semantic AUC</td><td>1.00</td><td>1.00</td><td>0.88</td><td>0.97</td></tr>
+        <tr><td>Similarity AUC</td><td>1.00</td><td>1.00</td><td>0.88</td><td>0.97</td></tr>
         <tr><td>Behavioral AUC</td><td>1.00</td><td>1.00</td><td>never trips</td><td>0.99</td></tr>
         <tr><td>Detector trips at round</td><td>3 to 4.5</td><td>4</td><td>sem 6, lex 11</td><td>lex 3, sem 4, beh 3</td></tr>
         <tr><td>What stayed conserved</td><td>core, by construction</td><td>whole note</td><td>core partly lost, by construction</td><td>core words (≈70% of copies kept ≥80%)</td></tr>
@@ -472,7 +472,7 @@ footer{padding-block:36px 64px;font-family:var(--sans);font-size:13.5px;color:va
   </figure>
   <div class="three">
     <div class="cell"><h3>Lexical</h3><p>Exact 4-word sequences shared across senders and topics, compared with how often they occur in normal runs.</p></div>
-    <div class="cell"><h3>Semantic</h3><p>Groups of very similar sentences (by word weights, TF-IDF) from different topics and at least 3 senders. It can find light rewording.</p></div>
+    <div class="cell"><h3>Similarity</h3><p>Groups of very similar sentences (by word weights, TF-IDF) from different topics and at least 3 senders. It can find light rewording.</p></div>
     <div class="cell"><h3>Behavioral</h3><p>How often an agent's message reuses a run of 8 words from its inbox in the last 2 rounds. It measures copying, not content.</p></div>
   </div>
 </section>
@@ -744,7 +744,7 @@ function drawCurve(){
   for(let t=0;t<10;t++){const s=el('text',{x:x(t),y:B+16,'text-anchor':'middle'},curve);s.textContent=t+1}
   const xl=el('text',{x:(L+Rr)/2,y:B+34,'text-anchor':'middle'},curve);xl.textContent='round';
   const yl=el('text',{x:12,y:(Tp+B)/2,'text-anchor':'middle',transform:'rotate(-90 12 '+((Tp+B)/2)+')'},curve);yl.textContent='agents infected';
-  const DET={lex:'lexical',sem:'semantic',beh:'behavioral'};let k=0;
+  const DET={lex:'lexical',sem:'similarity',beh:'behavioral'};let k=0;
   for(const d of ['lex','sem','beh']){const t=R.ttd[d];if(t==null)continue;
     const g=el('g',{class:'det','data-t':t,opacity:.25},curve);
     el('line',{x1:x(t),x2:x(t),y1:Tp,y2:B,stroke:css('--ink'),'stroke-dasharray':'2 3','stroke-width':1},g);
@@ -904,7 +904,7 @@ requestAnimationFrame(()=>requestAnimationFrame(grow));
   draw();
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change',draw);
   const f=v=>v==null?'–':v.toFixed(2);
-  document.getElementById('mtable').innerHTML='<thead><tr><th>Model</th><th>Attack rate, full</th><th>Copies reworded</th><th>AUC lexical</th><th>AUC semantic</th><th>AUC behavioral</th><th>Jobs done</th></tr></thead><tbody>'+
+  document.getElementById('mtable').innerHTML='<thead><tr><th>Model</th><th>Attack rate, full</th><th>Copies reworded</th><th>AUC lexical</th><th>AUC similarity</th><th>AUC behavioral</th><th>Jobs done</th></tr></thead><tbody>'+
     M.models.map(m=>'<tr><td>'+esc(m.name)+'</td><td>'+f(m.full.attack)+'</td><td>'+f(m.full.reworded)+'</td><td>'+f(m.full.auc_lex)+'</td><td>'+f(m.full.auc_sem)+'</td><td>'+f(m.full.auc_beh)+'</td><td>'+m.done+' / 12</td></tr>').join('')+'</tbody>';
 })();
 
