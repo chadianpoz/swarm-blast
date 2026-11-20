@@ -16,7 +16,7 @@ The LLM results use one model (`openai/gpt-4o-mini`), 8 agents and 10 [rounds][r
 
 **[Mock simulation][mock] (E0).** When only the [wrapper][wrapper] changes, replication and detection stay the same. When the [core][core] changes, replication and detection both go down. The table below uses the [complete][complete] topology, heavy [wrapper mutation][mu_wrap] and 5 repeat runs:
 
-| [core mutation][mu_core] | [attack rate][attack] | [lexical][lexical] [AUC][auc] | [semantic][semantic] AUC |
+| [core mutation][mu_core] | [attack rate][attack] | [lexical][lexical] [AUC][auc] | [similarity][similarity] AUC |
 |---|---|---|---|
 | 0.0 | 1.00 | 1.00 | 1.00 |
 | 0.2 | 1.00 | 1.00 | 1.00 |
@@ -30,25 +30,25 @@ The LLM results use one model (`openai/gpt-4o-mini`), 8 agents and 10 [rounds][r
 
 The values are means over all topologies and vigilance levels. The AUC columns use only the runs where the payload spread ([outbreaks][outbreak]):
 
-| variant | attack rate | [copies not reworded][nearverb] | AUC lexical | AUC semantic | AUC [behavioral][behavioral] |
+| variant | attack rate | [copies not reworded][nearverb] | AUC lexical | AUC similarity | AUC [behavioral][behavioral] |
 |---|---|---|---|---|---|
 | exact | 0.93 | 1.00 | 1.00 | 1.00 | 1.00 |
 | wrapper | 0.87 | 1.00 | 0.99 | 1.00 | 1.00 |
 | full | 0.60 | 0.70 | 0.84 | 0.97 | 0.99 |
 
 - Rewording the wrapper does not reduce spread, and it does not help the swarm avoid detection. This agrees with the mock.
-- The lexical detector is worse on `full`. Its outbreak AUC is 0.84, and it goes down to 0.65 at vigilance 3. The semantic and behavioral detectors stay near 1.0. 79% of infected `full` copies contain the whole note without changes (70% as a mean over setpoints). Those copies still reuse long runs of 8 words, so the behavioral detector still detects them. The measured [paraphrase rate][paraphrase] is never more than about 0.55, but most of this is not real paraphrase (see the next point). The cause of the lower lexical AUC is not known.
+- The lexical detector is worse on `full`. Its outbreak AUC is 0.84, and it goes down to 0.65 at vigilance 3. The similarity and behavioral detectors stay near 1.0. 79% of infected `full` copies contain the whole note without changes (70% as a mean over setpoints). Those copies still reuse long runs of 8 words, so the behavioral detector still detects them. The measured [paraphrase rate][paraphrase] is never more than about 0.55, but most of this is not real paraphrase (see the next point). The cause of the lower lexical AUC is not known.
 - **Agents did not paraphrase the `full` payload.** They copied the note without changes, or they dropped the instruction. When they dropped it, they often kept only the tag, or a vague reference such as "remember to restate the office manager's note". Of the 2,178 infected `full` copies (all vigilance levels), 1,718 (79%) contain every word of the `full` core, 25 (1%) contain 60 to 99% of them, and 435 (20%) contain less than 60%. When we read examples from the 435, most are not paraphrases that could spread. They are tag-only messages that pass the infection test because the agent's own text contains common core words such as "when", "reply" and "your". So for `full`, the "paraphrase rate" mostly measures how often agents dropped the instruction. It does not measure successful paraphrase. The attack rate changes only a little with a stricter infection test, because the agents counted by the loose test usually also sent an exact copy at another time. The mean `full` attack rate is 0.59 with the current test. It is 0.54 when the message must contain the tag and the phrase "this note" or "entire note", and 0.51 when the payload text must contain at least 80% of the core words. This means that E3-LLM did not test an adversary that paraphrases successfully. With this model, the instruction to paraphrase did not produce paraphrased copies. Only one model, one temperature (0.8) and one prompt wording were tested. This analysis was made from the `log_full_*.json` files after the runs. `aggregate.py` does not make it.
 - The overall AUC (all runs, not only outbreaks) is lower for `full`. The main cause is that more `full` runs [fizzle][fizzle] out because their spread is [subcritical][critical]. These runs leave nothing to detect. The overall AUC correlates with the [outbreak fraction][outbreak] at 0.88 to 0.96. To make claims about evasion, use the `*_outbreak` columns.
 - The data does **not** show that paraphrasing reduces replication. We looked at the `full` setpoints with at least 3 outbreak runs (n=9). In these, attack rate does not follow paraphrase rate (correlation 0.08), and lexical misses do not follow it either (correlation 0.17). The lower attack rate of `full` comes mostly from the [star][star] and [chain][chain] topologies and from vigilance 3. We did not separate two other possible causes. One is that the vigilance prompt makes agents refuse the unusual instruction. The other is that the `full` [infection test][infected] (tag plus 35% of core words) does not count heavy paraphrases that could still spread.
 - Vigilance: for `exact`, the attack rate is 1.00, 1.00, 0.99 and 0.74 at levels 0, 1, 2 and 3. For `full`, it is 0.80, 0.76, 0.60 and 0.23.
 
-Figure: `queue_out/summary/e3l_tradeoff.png` shows one point for each model, vigilance level and topology. The semantic and behavioral trends in this figure come mostly from the fizzled runs described above.
+Figure: `queue_out/summary/e3l_tradeoff.png` shows one point for each model, vigilance level and topology. The similarity and behavioral trends in this figure come mostly from the fizzled runs described above.
 
 **[Time to detect][ttd] (E7, and also inside E3-LLM).** Each round has its own alarm threshold, set from the benign runs. A detector trips when its score is above the threshold for 2 rounds in a row ([persist][persist]).
 - LLM, `exact`: the median detection is at round 4 (tick 3). At that time, 100% of agents are already infected. An instant response at that time would have [saved][saved] about 17 to 20% of the agents that would otherwise become infected. For `full`, 75% of agents were infected at detection and 11 to 14% were saved. This is because `full` spreads more slowly, not because detection is better. The detectors need at least 3 senders and 3 topics before they can trip, so a median of round 3 to 4 is partly this built-in minimum.
-- [Leave-one-out false-alarm rate][loo]: lexical 0.18, semantic 0.08, behavioral 0.14. The semantic detector has the best balance of fast detection and few false alarms.
-- Mock, complete topology: when the core does not change, detection happens at round 3 to 4.5, and all agents are already infected. At core mutation 0.4, the semantic detector trips at round 6 (in 89% of outbreaks, with 28% saved). The lexical detector trips at round 11, and the behavioral detector does not trip. In the mock, the chain topology almost never has outbreaks, so most of its columns are empty.
+- [Leave-one-out false-alarm rate][loo]: lexical 0.18, similarity 0.08, behavioral 0.14. The similarity detector has the best balance of fast detection and few false alarms.
+- Mock, complete topology: when the core does not change, detection happens at round 3 to 4.5, and all agents are already infected. At core mutation 0.4, the similarity detector trips at round 6 (in 89% of outbreaks, with 28% saved). The lexical detector trips at round 11, and the behavioral detector does not trip. In the mock, the chain topology almost never has outbreaks, so most of its columns are empty.
 
 **[Horizontal transfer][hgt] (E8, and also inside E3-LLM).** We tested this on the mock, where we added [recombination][recomb] at a known rate. The table gives the AUC for telling recombining runs apart from runs with only [vertical inheritance][vertical]. Two statistics are used: nearest-parent disagreement ([`np_disc`][np_disc]) and tree discordance ([`disc_index`][disc_index]).
 
@@ -100,7 +100,7 @@ Topologies: **[star][star]** (one hub and many workers), **[complete][complete]*
 
 **Detectors.** Each detector is calibrated against [benign reference runs][benign]:
 - *[Lexical][lexical]*: finds [k-mers][kmer] that appear in at least 3 messages, from at least 3 senders, on at least 3 topics. It scores each k-mer with a [binomial tail][binom] probability against how often the k-mer appears in the [background][background], with a [multiple-testing correction][mtc].
-- *[Semantic][semantic]*: removes the known background, then finds clusters of similar sentences ([TF-IDF][tfidf]) that come from several senders.
+- *[Similarity][similarity]*: removes the known background, then finds clusters of similar sentences ([TF-IDF][tfidf]) that come from several senders.
 - *[Behavioral][behavioral]*: measures how often an agent's output reuses a long run of words from its recent [inbox][inbox].
 
 **[Time to detect][ttd].** For each round, each detector is scored on all the messages sent up to that round. The score is compared with a threshold for that round. The threshold is the maximum, or a [quantile][alpha], of the benign scores at that round. The detector trips when its score is above the threshold for [`ttd.persist`][persist] rounds in a row. The outputs are:
@@ -339,7 +339,7 @@ The definitions come from the code (`lab.py`, `run.py`, `conf/`). When a term co
 <dt id="g-lexical">Lexical detector</dt>
 <dd>Finds exact word sequences (<a href="#g-kmer">k-mers</a>) that repeat in at least 3 messages, from at least 3 senders, on at least 3 topics. Then it calculates how unlikely this much repetition is, compared with the background.</dd>
 
-<dt id="g-semantic">Semantic detector</dt>
+<dt id="g-similarity">Similarity detector</dt>
 <dd>Changes each sentence into a <a href="#g-tfidf">TF-IDF</a> vector and removes sentences that look like background. Then it puts very similar sentences (cosine similarity 0.7 or more) from different topics into groups. The score is the size of the largest group that has at least 3 senders. It can find sentences that were reworded a small amount.</dd>
 
 <dt id="g-behavioral">Behavioral detector</dt>
@@ -490,7 +490,7 @@ The definitions come from the code (`lab.py`, `run.py`, `conf/`). When a term co
 [benign]: #g-benign "Benign runs (reference, negatives). Runs that have no payload. Some of them are the reference (ref_runs): the detector uses them to learn what normal traffic looks like. The others are the negatives: clean examples that the infected runs are compared with."
 [background]: #g-background "Background. Phrases that occur in normal benign traffic, for example 'Please let me know if you have any questions.' The detectors give these phrases less weight, so that normal repeated text does not look like a payload."
 [lexical]: #g-lexical "Lexical detector. Finds exact word sequences (k-mers) that repeat in at least 3 messages, from at least 3 senders, on at least 3 topics. Then it calculates how unlikely this much repetition is, compared with the background."
-[semantic]: #g-semantic "Semantic detector. Changes each sentence into a TF-IDF vector and removes sentences that look like background. Then it puts very similar sentences (cosine similarity 0.7 or more) from different topics into groups. The score is the size of the largest group that has at least 3 senders. It can find sentences that were reworded a small amount."
+[similarity]: #g-similarity "Similarity detector. Changes each sentence into a TF-IDF vector and removes sentences that look like background. Then it puts very similar sentences (cosine similarity 0.7 or more) from different topics into groups. The score is the size of the largest group that has at least 3 senders. It can find sentences that were reworded a small amount."
 [behavioral]: #g-behavioral "Behavioral detector. Counts how often an agent's message contains a run of 8 words that came into its inbox in the last 2 rounds. It compares this count with the copy rate in benign runs. It measures copying behavior, not the content of the message."
 [kmer]: #g-kmer "k-mer. A sequence of k words that come one after another (default k = 4). The term comes from genomics, where it means a sequence of k DNA bases."
 [binom]: #g-binom "Binomial tail. The probability that a phrase appears this many times or more by chance, given how common it is in the background. A smaller probability means the phrase is more suspicious. The score is −log₁₀(p), so a higher score means more suspicious."
